@@ -1,2 +1,2 @@
 HOSTNAME = "name"
-SSID, PASSWORD = "ssid", "pas"
+SSID, PASSWORD = "ssid", "pass"
