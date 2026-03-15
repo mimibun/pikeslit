@@ -8,25 +8,22 @@ screen.setBrightness(0.05)
 app = Microdot()
 
 async def connectToWifi():
-    async def setupWifi():
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
 
-        print(f"Connecting as '{HOSTNAME}' to '{SSID}'...")
-        wlan.connect(SSID, PASSWORD) if PASSWORD != "" else wlan.connect(SSID)
-        
-        while not wlan.isconnected():
-            await asyncio.sleep(15)
+    print(f"Connecting as '{HOSTNAME}' to '{SSID}'...")
+    wlan.connect(SSID, PASSWORD) if PASSWORD != "" else wlan.connect(SSID)
+    
+    while not wlan.isconnected():
+        await asyncio.sleep(3)
 
-        print(f"Connected! My IP is: {wlan.ipconfig('addr4')[0]}")
-
-    loading = asyncio.create_task(screen.animate(screen.LOADING))
-    await setupWifi()
-    loading.cancel()
-    await screen.animate(screen.SUCCESS)
+    print(f"Connected! My IP is: {wlan.ipconfig('addr4')[0]}")
 
 async def main():
+    loading = asyncio.create_task(screen.LOADING())
     await connectToWifi()
+    loading.cancel()
+    await screen.animate(screen.SUCCESS)
 
     @app.get("/")
     async def index(response):

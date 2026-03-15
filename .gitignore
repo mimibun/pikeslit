@@ -2,4 +2,4 @@
 .vscode/
 .micropico
 *.code-workspace
-_env.*
+_env.py
