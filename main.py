@@ -16,12 +16,13 @@ async def connectToWifi():
         wlan.connect(SSID, PASSWORD) if PASSWORD != "" else wlan.connect(SSID)
         
         while not wlan.isconnected():
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(15)
 
         print(f"Connected! My IP is: {wlan.ipconfig('addr4')[0]}")
 
-    await screen.animate(screen.LOADING)
+    loading = asyncio.create_task(screen.animate(screen.LOADING))
     await setupWifi()
+    loading.cancel()
     await screen.animate(screen.SUCCESS)
 
 async def main():
