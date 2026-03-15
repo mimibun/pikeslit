@@ -14,6 +14,7 @@ async def connectToWifi():
     print(f"Connecting as '{HOSTNAME}' to '{SSID}'...")
     wlan.connect(SSID, PASSWORD) if PASSWORD != "" else wlan.connect(SSID)
     
+    await asyncio.sleep(3)
     while not wlan.isconnected():
         await asyncio.sleep(3)
 
