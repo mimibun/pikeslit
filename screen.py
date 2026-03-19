@@ -1,7 +1,7 @@
 import asyncio
 
 class Screen:
-    def __init__(self, pin=4, amountLeds=9) -> None:
+    def __init__(self, pin=4, amountLeds=256) -> None:
         import neopixel, machine
 
         self.n = amountLeds
@@ -9,6 +9,7 @@ class Screen:
 
         self.brightness = 0.5
 
+        self.buffer = []
         self.animation = None
 
     def setBrightness(self, brightness: float):
@@ -17,9 +18,14 @@ class Screen:
     def toGRB(self, color: tuple):
         return ((color[1], color[0], color[2]))
     
+
+
+
+
+
+
     def write(self):
         self.np.write()
-    
     
     def clearAll(self):
         self.np.fill(self.toGRB((0,0,0)))
@@ -72,7 +78,7 @@ class Screen:
 
         while True:
             self.setSingle(random.randint(0, self.n - 1), tuple(random.randint(2,255) for i in range(3)))
-            await asyncio.sleep_ms(100)
+            await asyncio.sleep_ms(50)
 
     async def LOADING(self):
         while True:
@@ -81,6 +87,14 @@ class Screen:
                     self.clearAll()
                     self.setSingle(led, (20,20,20))
                     await asyncio.sleep_ms(100)
+
+    async def TESTING(self):
+        while True:
+            for i in [0,1,2]:
+                if i == 0: self.setAll((0,255,0))
+                if i == 1: self.setAll((255,0,0))
+                if i == 2: self.setAll((0,0,255))
+                await asyncio.sleep(3)
 
     async def SUCCESS(self):
         for _ in range(2):

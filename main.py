@@ -31,6 +31,26 @@ async def main():
         await screen.animate(screen.COLOR_NOISE)
         return "hi", 200
     
+    @app.get("/full")
+    def full(response):
+        screen.setBrightness(1.0)
+        return "full brightness", 200
+    
+    @app.get("/half")
+    def half(response):
+        screen.setBrightness(0.5)
+        return "half brightness", 200
+    
+    @app.get("/quarter")
+    def quarter(response):
+        screen.setBrightness(0.25)
+        return "quarter brightness", 200
+    
+    @app.get("/testing")
+    async def testing(response):
+        await screen.animate(screen.TESTING)
+        return "quarter brightness", 200
+    
 
     @app.get("/rtd")
     async def rollTheDice(response):
