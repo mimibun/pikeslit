@@ -1,4 +1,4 @@
-from _env import SSID, PASSWORD, HOSTNAME
+from _env import SSID, PASSWORD, HOSTNAME, ACCESS_POINT_SSID
 from microdot import Microdot
 from screen import Screen
 import network, asyncio
@@ -7,28 +7,57 @@ screen = Screen()
 screen.setBrightness(0.05)
 app = Microdot()
 
-async def connectToWifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
+async def setupWifi():
+    from animations.loading import LOADING
+    from animations.success import SUCCESS
+    from animations.success_alt import SUCCESS_ALT
 
-    print(f"Connecting as '{HOSTNAME}' to '{SSID}'...")
-    wlan.connect(SSID, PASSWORD) if PASSWORD != "" else wlan.connect(SSID)
+    loading = asyncio.create_task(LOADING(screen))
+
+    wifi = network.WLAN(network.STA_IF)
+    wifi.active(True)
+
+    print(f"Attempting to connect as '{HOSTNAME}' to '{SSID}'...")
+    wifi.connect(SSID, PASSWORD) if PASSWORD != "" else wifi.connect(SSID)
     
-    await asyncio.sleep(3)
-    while not wlan.isconnected():
+    attempts = 0
+    while not wifi.isconnected() or attempts < 30:
+        attempt += 1
         await asyncio.sleep(3)
 
-    print(f"Connected! My IP is: {wlan.ipconfig('addr4')[0]}")
+    if wifi.isconnected():
+        print(f"Connected to '{SSID}' successfully! My IP is: {wifi.ipconfig('addr4')[0]}")
+        loading.cancel()
+        await screen.animate(SUCCESS(screen))
+    else: 
+        wifi.active(False)
+        print(f"Could not reach '{SSID}', creating access-point...")
+        ap = network.WLAN(network.WLAN.IF_AP)
+        ap.active(True)
+        ap.config(ssid=ACCESS_POINT_SSID)
+
+        if ap.isconnected():
+            print(f"Successfully created access-point! My SSID is: '{ACCESS_POINT_SSID}'")
+            loading.cancel()
+            await screen.animate(SUCCESS(screen))
+        else:
+            print(f"Could not create access-point! Check your '_env.py' file :)")
+            loading.cancel()
+            await screen.animate(SUCCESS_ALT(screen))
+
 
 async def main():
-    loading = asyncio.create_task(screen.LOADING())
-    await connectToWifi()
-    loading.cancel()
-    await screen.animate(screen.SUCCESS)
+    from animations.loading import LOADING
+    from animations.success import SUCCESS
+    from animations.testingAllColors import TESTING_ALL_COLORS
+    from animations.diceRoll import DICE_ROLL
+
+    await setupWifi()
 
     @app.get("/")
     async def index(response):
-        await screen.animate(screen.COLOR_NOISE)
+        from animations.colorNoise import COLOR_NOISE
+        await screen.animate(COLOR_NOISE(screen))
         return "hi", 200
     
     @app.get("/full")
@@ -46,15 +75,15 @@ async def main():
         screen.setBrightness(0.25)
         return "quarter brightness", 200
     
-    @app.get("/testing")
-    async def testing(response):
-        await screen.animate(screen.TESTING)
+    @app.get("/test")
+    async def test(response):
+        await screen.animate(TESTING_ALL_COLORS(screen))
         return "quarter brightness", 200
     
 
     @app.get("/rtd")
     async def rollTheDice(response):
-        await screen.animate(screen.DICE_ROLL)
+        await screen.animate(DICE_ROLL(screen))
         return "wow it works??", 200
 
             
