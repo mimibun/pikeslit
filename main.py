@@ -47,8 +47,6 @@ async def setupWifi():
 
 
 async def main():
-    from animations.loading import LOADING
-    from animations.success import SUCCESS
     from animations.testingAllColors import TESTING_ALL_COLORS
     from animations.diceRoll import DICE_ROLL
 
