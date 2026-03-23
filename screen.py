@@ -11,14 +11,23 @@ class Screen:
 
         self.buffer = []
         self.animation = None
+        
+        self.test = [
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,1,1,1,0,0,1,0,1,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+        ]
 
     def setBrightness(self, brightness: float):
         self.brightness = brightness if brightness >= 0 and brightness <= 1 else self.brightness
 
-
-
-
-
+    def dim(self, color):
+        return tuple(int(c * self.brightness) for c in color)
 
     def write(self):
         self.np.write()
@@ -46,8 +55,17 @@ class Screen:
             self.np[pixel] = color
         self.np.write()
 
-    async def animate(self, animation):
+    async def animate(self, animation, screenObj):
         self.clearAll()
         if self.animation != None:
             self.animation.cancel()
-        self.animation = asyncio.create_task(animation())
+        self.animation = asyncio.create_task(animation(screenObj))
+
+    def normalise(self, goodArray, hflip=False, yflip=False):
+        normal = []
+
+        for line in range(len(self.test[0])) if not hflip else reversed(range(len(self.test[0]))):
+            for pixel in range(len(self.test)) if line % 2 == 0 else reversed(range(len(self.test))) if not yflip else range(len(self.test)) if line % 2 != 0 else reversed(range(len(self.test))):
+                normal.append(goodArray[pixel][line])
+
+        return normal
